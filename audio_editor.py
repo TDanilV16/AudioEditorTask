@@ -8,7 +8,8 @@ def cut_audio(input_file_name, start, stop):
     file_format = get_audio_format(input_file_name)
     exit_file_name = "cut_{}.{}".format(input_file_name[:-4], file_format)
     command = "ffmpeg -i {} -ss {} -to {} {}".format(input_file_name, start, stop, exit_file_name)
-    subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process.communicate()
     # if change_orig == "t":
     #     temp_file = tempfile.NamedTemporaryFile()
     #     temp_file_name = str(temp_file.name).split("/")[-1] + file_format
@@ -23,7 +24,8 @@ def concat_audio(exit_file_name, audio_files):
     t = "|".join(audio_files)
     command = "ffmpeg -i concat:{} {}".format(str(t), exit_file_name)
     print(command)
-    subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process.communicate()
 
 
 def speedup_audio(input_file_name, times, rewrite):
@@ -31,7 +33,8 @@ def speedup_audio(input_file_name, times, rewrite):
         file_format = get_audio_format(input_file_name)
         exit_file_name = "speedup_{}.{}".format(input_file_name[:-4], file_format)
         command = "ffmpeg -i {} -af atempo={} {}".format(input_file_name, times, exit_file_name)
-        subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        process.communicate()
     else:
         return "Неправильно указан параметр изменения звука. Попробуйте еще раз."
 
@@ -40,7 +43,8 @@ def slowdown_audio(input_file_name, times, rewrite):
     file_format = get_audio_format(input_file_name)
     exit_file_name = "slowdown_{}.{}".format(input_file_name[:-4], file_format)
     command = "ffmpeg -i {} -af atempo={} {}".format(input_file_name, times, exit_file_name)
-    subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process.communicate()
 
 
 def change_volume(input_file_name, action, k, rewrite):
@@ -59,10 +63,11 @@ def change_volume(input_file_name, action, k, rewrite):
     else:
         return "Wrong command! Try again!"
 
-    subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process.communicate()
 
 
-def redo(input_file_name):
+def redo():
     pass
 
 
