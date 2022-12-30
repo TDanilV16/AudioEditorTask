@@ -4,7 +4,10 @@ import datetime as dt
 
 def get_today_date_and_time():
     now = dt.datetime.now()
-    today_date_and_time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+    if len(str(now.minute)) > 1:
+        today_date_and_time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+    else:
+        today_date_and_time = f"{now.year}/{now.month}/{now.day} {now.hour}:0{now.minute}"
     return today_date_and_time
 
 
