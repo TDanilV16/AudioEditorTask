@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import chronicler
 from set_command import SetAudioEditorOperation
+import pathlib
 
 
 class CutAudioOperation(SetAudioEditorOperation):
@@ -17,12 +18,10 @@ class CutAudioOperation(SetAudioEditorOperation):
         self.exit_file_name = ""
 
     def __call__(self):
+        self.exit_file_name = get_exit_file_name("cut", self.input_file_name)
         if self.delete_old == "t":
-            file_format = get_audio_format(self.input_file_name)
-            exit_file_name = "cut_{}.{}".format(self.input_file_name[:-4], file_format)
-            self.exit_file_name = exit_file_name
             command = "ffmpeg -i {} -ss {} -to {} {}".format(self.input_file_name, self.start, self.stop,
-                                                             exit_file_name)
+                                                             self.exit_file_name)
             process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             process.communicate()
             chronicler.write_history_of_file(self.input_file_name, "удален")
@@ -30,10 +29,8 @@ class CutAudioOperation(SetAudioEditorOperation):
             shutil.copy(self.input_file_name, self.tmp_dir + "/" + self.input_file_name)
             os.remove(self.input_file_name)
         elif self.delete_old == "f":
-            file_format = get_audio_format(self.input_file_name)
-            exit_file_name = "cut_{}.{}".format(self.input_file_name[:-4], file_format)
             command = "ffmpeg -i {} -ss {} -to {} {}".format(self.input_file_name, self.start, self.stop,
-                                                             exit_file_name)
+                                                             self.exit_file_name)
             process = subprocess.Popen(command)
             process.communicate()
             chronicler.write_history_of_file(self.exit_file_name, "обрезаная копия исходного")
@@ -103,16 +100,13 @@ class SpeedUpAudioOperation(SetAudioEditorOperation):
 
     def __call__(self):
         if 1 <= float(self.times) <= 100:
+            self.exit_file_name = get_exit_file_name("speedup", self.input_file_name)
             if self.delete_old == "f":
-                file_format = get_audio_format(self.input_file_name)
-                self.exit_file_name = "speedup_{}.{}".format(self.input_file_name[:-4], file_format)
                 command = "ffmpeg -i {} -af atempo={} {}".format(self.input_file_name, self.times, self.exit_file_name)
                 process = subprocess.Popen(command)
                 process.communicate()
                 chronicler.write_history_of_file(self.exit_file_name, "ускоренная копия исходного")
             elif self.delete_old == "t":
-                file_format = get_audio_format(self.input_file_name)
-                self.exit_file_name = "speedup_{}.{}".format(self.input_file_name[:-4], file_format)
                 command = "ffmpeg -i {} -af atempo={} {}".format(self.input_file_name, self.times, self.exit_file_name)
                 process = subprocess.Popen(command)
                 process.communicate()
@@ -148,17 +142,14 @@ class SlowDownAudioOperation(SetAudioEditorOperation):
 
     def __call__(self):
         if 0.5 <= float(self.times) <= 1:
+            self.exit_file_name = get_exit_file_name("slowdown", self.input_file_name)
             if self.delete_old == "f":
-                file_format = get_audio_format(self.input_file_name)
-                self.exit_file_name = "slowdown_{}.{}".format(self.input_file_name[:-4], file_format)
                 command = "ffmpeg -i {} -af atempo={} {}".format(self.input_file_name, self.times,
                                                                  self.exit_file_name)
                 process = subprocess.Popen(command)
                 process.communicate()
                 chronicler.write_history_of_file(self.exit_file_name, "замедленная копия исходного")
             elif self.delete_old == "t":
-                file_format = get_audio_format(self.input_file_name)
-                self.exit_file_name = "slowdown_{}.{}".format(self.input_file_name[:-4], file_format)
                 command = "ffmpeg -i {} -af atempo={} {}".format(self.input_file_name, self.times,
                                                                  self.exit_file_name)
                 process = subprocess.Popen(command)
@@ -195,8 +186,7 @@ class ChangeAudioVolumeOperation(SetAudioEditorOperation):
         self.delete_old = delete_old
 
     def __call__(self):
-        file_format = get_audio_format(self.input_file_name)
-        self.exit_file_name = "{}_volume_{}.{}".format(self.action, self.input_file_name[:-4], file_format)
+        self.exit_file_name = get_exit_file_name("volume", self.input_file_name, self.action)
         if self.action == "i":
             if "dB" in self.k:
                 command = 'ffmpeg -i {} -filter:a "volume={}" {}'.format(self.input_file_name, self.k,
@@ -242,31 +232,13 @@ class ChangeAudioVolumeOperation(SetAudioEditorOperation):
             os.remove(self.exit_file_name)
 
 
-def change_volume(input_file_name, action, k, delete_old="f"):
-    file_format = get_audio_format(input_file_name)
-    exit_file_name = "{}_volume_{}.{}".format(action, input_file_name[:-4], file_format)
-    if action == "i":
-        if "dB" in k:
-            command = 'ffmpeg -i {} -filter:a "volume={}" {}'.format(input_file_name, k, exit_file_name)
-        else:
-            command = 'ffmpeg -i {} -filter:a "volume={}" {}'.format(input_file_name, 1 + float(k), exit_file_name)
-    elif action == "r":
-        if "dB" in k:
-            command = 'ffmpeg -i {} -filter:a "volume=-{}" {}'.format(input_file_name, k, exit_file_name)
-        else:
-            command = 'ffmpeg -i {} -filter:a "volume={}" {}'.format(input_file_name, 1 - float(k), exit_file_name)
-    else:
-        return "Wrong command! Try again!"
-    if delete_old == "t":
-        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        process.communicate()
-        os.remove(input_file_name)
-    elif delete_old == "f":
-        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        process.communicate()
-    else:
-        return f"Неправильно указан параметр модификации исходного аудио. Ожидали: f/t, получили: {delete_old}"
-
-
 def get_audio_format(input_file_name):
-    return input_file_name.split('.')[-1]
+    return pathlib.PureWindowsPath(input_file_name).suffix
+
+
+def get_exit_file_name(action, input_file_name, volume_action=None):
+    file_format = get_audio_format(input_file_name)
+    file_name = pathlib.PureWindowsPath(input_file_name).stem
+    if volume_action is None:
+        return "{}_{}{}".format(action, file_name, file_format)
+    return "{}_{}_{}{}".format(volume_action, action, file_name, file_format)
