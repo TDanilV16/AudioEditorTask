@@ -5,9 +5,11 @@ import datetime as dt
 def get_today_date_and_time():
     now = dt.datetime.now()
     if len(str(now.minute)) > 1:
-        today_date_and_time = f"{now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"
+        today_date_and_time = f"{now.year}/{now.month}/{now.day} " \
+                              f"{now.hour}:{now.minute}"
     else:
-        today_date_and_time = f"{now.year}/{now.month}/{now.day} {now.hour}:0{now.minute}"
+        today_date_and_time = f"{now.year}/{now.month}/{now.day} " \
+                              f"{now.hour}:0{now.minute}"
     return today_date_and_time
 
 
@@ -29,7 +31,9 @@ def get_history_of_file(input_file_name):
 
     cursor = db.cursor()
 
-    cursor.execute("SELECT * FROM HISTORY WHERE file_name = ?;", (input_file_name,))
+    cursor\
+        .execute("SELECT * FROM HISTORY WHERE file_name = ?;",
+                 (input_file_name,))
     record = cursor.fetchall()
 
     for rec in record:

@@ -8,7 +8,7 @@ class CommandManager(object):
         self.undo_commands.append(command)
 
     def pop_undo_command(self):
-        """Remove the last command from the undo command stack and return it.
+        """Remove the last command from the undo command stack and return it
         If the command stack is empty, EmptyCommandStackError is raised.
 
         """
@@ -24,21 +24,21 @@ class CommandManager(object):
         self.redo_commands.append(command)
 
     def pop_redo_command(self):
-        """Remove the last command from the redo command stack and return it.
+        """Remove the last command from the redo command stack and return it
         If the command stack is empty, EmptyCommandStackError is raised.
 
         """
         try:
             last_redo_command = self.redo_commands.pop()
         except IndexError:
-            print("Пока вы не отменили какие-либо изменения, откатывать нечего :)")
+            print("Пока вы не отменили какие-либо изменения,"
+                  " откатывать нечего :)")
             return
         return last_redo_command
 
     def do(self, command):
         """Execute the given command. Exceptions raised from the command are
         not catched.
-
         """
         command()
         self.push_undo_command(command)
@@ -47,10 +47,9 @@ class CommandManager(object):
 
     def undo(self, n=1):
         """Undo the last n commands. The default is to undo only the last
-        command. If there is no command that can be undone because n is too big
-        or because no command has been emitted yet, EmptyCommandStackError is
-        raised.
-
+        command. If there is no command that can be undone because n is too
+        big or because no command has been emitted yet,
+        EmptyCommandStackError is raised.
         """
         for _ in range(n):
             command = self.pop_undo_command()
@@ -63,10 +62,9 @@ class CommandManager(object):
     def redo(self, n=1):
         """Redo the last n commands which have been undone using the undo
         method. The default is to redo only the last command which has been
-        undone using the undo method. If there is no command that can be redone
-        because n is too big or because no command has been undone yet,
-        EmptyCommandStackError is raised.
-
+        undone using the undo method. If there is no command that can be
+        redone because n is too big or because no command has been undone
+        yet, EmptyCommandStackError is raised.
         """
         for _ in range(n):
             command = self.pop_redo_command()
