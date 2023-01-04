@@ -12,7 +12,7 @@ class CutAudioTests(unittest.TestCase):
 
     def test_duration(self):
         actual_duration = int(
-            MP3(pathlib.Path.cwd() / "cut_test_cut.mp3").info.length)
+            MP3(pathlib.Path.cwd() / "tests" / "cut_test_cut.mp3").info.length)
         self.assertEqual(self.expected_duration, actual_duration)
 
 
@@ -22,7 +22,7 @@ class SpeedUpTests(unittest.TestCase):
 
     def test_speedup_x2(self):
         actual_length = int(
-            MP3(pathlib.Path.cwd() / "speedup_test_speedup.mp3").info.length)
+            MP3(pathlib.Path.cwd() / "tests" / "speedup_test_speedup.mp3").info.length)
         self.assertEqual(actual_length, self.expected_length)
 
 
@@ -32,7 +32,7 @@ class SlowDownTests(unittest.TestCase):
 
     def test_slowdown_x05(self):
         actual_length = int(
-            MP3(pathlib.Path.cwd() / "slowdown_test_slowdown.mp3").info.length)
+            MP3(pathlib.Path.cwd() / "tests" / "slowdown_test_slowdown.mp3").info.length)
         self.assertEqual(actual_length, self.expected_length)
 
 
